@@ -1,0 +1,28 @@
+{
+  "name": "kitchenio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sqlite3"
+    ]
+  },
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\"",
+    "install:all": "pnpm install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.1",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "github-markdown-css": "^5.8.1",
+    "marked": "^17.0.1",
+    "uuid": "^13.0.0"
+  }
+}
