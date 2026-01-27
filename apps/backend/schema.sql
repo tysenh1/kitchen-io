@@ -14,8 +14,9 @@ CREATE TABLE IF NOT EXISTS recipes(
 );
 CREATE TABLE IF NOT EXISTS recipe_ingredients(
     recipe_id TEXT,
-    generic_ingredient_name TEXT,
+    ingredient_id TEXT,
     quantity_needed REAL,
     unit TEXT,
+    FOREIGN KEY(ingredient_id) REFERENCES pantry(id),
     FOREIGN KEY(recipe_id) REFERENCES recipes(id)
 );

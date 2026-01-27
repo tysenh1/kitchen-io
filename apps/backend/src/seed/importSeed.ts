@@ -36,9 +36,9 @@ const runImport = () => {
     recipeStmt.finalize();
 
     // 5. ✅ FIXED: Use seedRecipeIngredients array directly
-    const ingredientStmt = db.prepare("INSERT INTO recipe_ingredients (recipe_id, generic_ingredient_name, quantity_needed, unit) VALUES (?, ?, ?, ?)");
+    const ingredientStmt = db.prepare("INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity_needed, unit) VALUES (?, ?, ?, ?)");
     seedRecipeIngredients.forEach(ing => {
-      ingredientStmt.run(ing.recipe_id, ing.generic_ingredient_name, ing.quantity_needed, ing.unit);
+      ingredientStmt.run(ing.recipe_id, ing.ingredient_id, ing.quantity_needed, ing.unit);
     });
     ingredientStmt.finalize();
 

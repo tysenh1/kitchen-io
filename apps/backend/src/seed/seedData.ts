@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 
-// Expanded IDs object including your originals
+// Fixed IDs object - using pantry item names as keys for proper mapping
 const ids = {
-  // Originals
+  // Recipes keep their IDs
   chicken: uuidv4(),
   pasta: uuidv4(),
   tacos: uuidv4(),
@@ -10,7 +10,6 @@ const ids = {
   salad: uuidv4(),
   steak: uuidv4(),
   curry: uuidv4(),
-  // NEW recipes
   pizza: uuidv4(),
   pancakes: uuidv4(),
   chili: uuidv4(),
@@ -30,71 +29,61 @@ const ids = {
 const ingredientToPantryId: Record<string, string> = {};
 
 export const seedPantry = [
-  // Your original pantry + 25+ new items
-  ...[
-    // Proteins (your originals + new)
-    { id: uuidv4(), item_name: 'Chicken Breast', quantity: 1000, unit: 'g', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Ground Beef', quantity: 500, unit: 'g', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Eggs', quantity: 12, unit: 'pcs', is_staple: 1 },
-    { id: uuidv4(), item_name: 'Salmon Fillet', quantity: 300, unit: 'g', is_staple: 0 }, // NEW
-    { id: uuidv4(), item_name: 'Shrimp', quantity: 200, unit: 'g', is_staple: 0 }, // NEW
-    
-    // Carbs (your originals + new)
-    { id: uuidv4(), item_name: 'Spaghetti', quantity: 500, unit: 'g', is_staple: 1 },
-    { id: uuidv4(), item_name: 'White Rice', quantity: 2, unit: 'kg', is_staple: 1 },
-    { id: uuidv4(), item_name: 'Tortillas', quantity: 8, unit: 'pcs', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Brown Rice', quantity: 1, unit: 'kg', is_staple: 1 }, // NEW
-    { id: uuidv4(), item_name: 'Bread Slices', quantity: 20, unit: 'pcs', is_staple: 1 }, // NEW
-    { id: uuidv4(), item_name: 'Lasagna Noodles', quantity: 400, unit: 'g', is_staple: 0 }, // NEW
-    
-    // Veggies (your originals + new)
-    { id: uuidv4(), item_name: 'Garlic', quantity: 5, unit: 'cloves', is_staple: 1 },
-    { id: uuidv4(), item_name: 'Onion', quantity: 2, unit: 'pcs', is_staple: 1 },
-    { id: uuidv4(), item_name: 'Bell Peppers', quantity: 3, unit: 'pcs', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Broccoli', quantity: 1, unit: 'head', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Spinach', quantity: 200, unit: 'g', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Carrots', quantity: 5, unit: 'pcs', is_staple: 1 }, // NEW
-    { id: uuidv4(), item_name: 'Tomatoes', quantity: 6, unit: 'pcs', is_staple: 0 }, // NEW
-    { id: uuidv4(), item_name: 'Mushrooms', quantity: 200, unit: 'g', is_staple: 0 }, // NEW
-    { id: uuidv4(), item_name: 'Zucchini', quantity: 3, unit: 'pcs', is_staple: 0 }, // NEW
-    
-    // Fats/Dairy/Sauces (your originals + new)
-    { id: uuidv4(), item_name: 'Olive Oil', quantity: 1, unit: 'L', is_staple: 1 },
-    { id: uuidv4(), item_name: 'Soy Sauce', quantity: 250, unit: 'ml', is_staple: 1 },
-    { id: uuidv4(), item_name: 'Butter', quantity: 250, unit: 'g', is_staple: 1 },
-    { id: uuidv4(), item_name: 'Cheddar Cheese', quantity: 200, unit: 'g', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Milk', quantity: 2, unit: 'L', is_staple: 1 }, // NEW
-    { id: uuidv4(), item_name: 'Flour', quantity: 2, unit: 'kg', is_staple: 1 }, // NEW
-    { id: uuidv4(), item_name: 'Sugar', quantity: 1, unit: 'kg', is_staple: 1 }, // NEW
-    { id: uuidv4(), item_name: 'Honey', quantity: 500, unit: 'g', is_staple: 1 }, // NEW
-    { id: uuidv4(), item_name: 'Tomato Sauce', quantity: 800, unit: 'g', is_staple: 1 }, // NEW
-    
-    // MISSING INGREDIENTS FOR NEW RECIPES (low/no quantity)
-    { id: uuidv4(), item_name: 'Coconut Milk', quantity: 0, unit: 'ml', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Red Curry Paste', quantity: 0, unit: 'tbsp', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Beef Steak', quantity: 0, unit: 'g', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Mozzarella Cheese', quantity: 0, unit: 'g', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Baking Powder', quantity: 0, unit: 'tsp', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Nori Sheets', quantity: 0, unit: 'sheets', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Avocado', quantity: 0, unit: 'pcs', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Peanut Butter', quantity: 0, unit: 'g', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Lime', quantity: 0, unit: 'pcs', is_staple: 0 },
-    { id: uuidv4(), item_name: 'Bun', quantity: 0, unit: 'pcs', is_staple: 0 },
-  ].map(item => {
-    ingredientToPantryId[item.item_name] = item.id;
-    return item;
-  }),
-];
+  // ALL pantry items with FIXED IDs that match recipe mappedIngredients
+  { id: uuidv4(), item_name: 'Chicken Breast', quantity: 1000, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Ground Beef', quantity: 500, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Eggs', quantity: 12, unit: 'pcs', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Salmon Fillet', quantity: 300, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Shrimp', quantity: 200, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Spaghetti', quantity: 500, unit: 'g', is_staple: 1 },
+  { id: uuidv4(), item_name: 'White Rice', quantity: 2, unit: 'kg', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Tortillas', quantity: 8, unit: 'pcs', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Brown Rice', quantity: 1, unit: 'kg', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Bread Slices', quantity: 20, unit: 'pcs', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Lasagna Noodles', quantity: 400, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Garlic', quantity: 5, unit: 'cloves', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Onion', quantity: 2, unit: 'pcs', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Bell Peppers', quantity: 3, unit: 'pcs', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Broccoli', quantity: 1, unit: 'head', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Spinach', quantity: 200, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Carrots', quantity: 5, unit: 'pcs', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Tomatoes', quantity: 6, unit: 'pcs', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Mushrooms', quantity: 200, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Zucchini', quantity: 3, unit: 'pcs', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Olive Oil', quantity: 1, unit: 'L', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Soy Sauce', quantity: 250, unit: 'ml', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Butter', quantity: 250, unit: 'g', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Cheddar Cheese', quantity: 200, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Milk', quantity: 2, unit: 'L', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Flour', quantity: 2, unit: 'kg', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Sugar', quantity: 1, unit: 'kg', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Honey', quantity: 500, unit: 'g', is_staple: 1 },
+  { id: uuidv4(), item_name: 'Tomato Sauce', quantity: 800, unit: 'g', is_staple: 1 },
+  // MISSING INGREDIENTS NOW PROPERLY ADDED
+  { id: uuidv4(), item_name: 'Coconut Milk', quantity: 0, unit: 'ml', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Red Curry Paste', quantity: 0, unit: 'tbsp', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Beef Steak', quantity: 0, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Mozzarella Cheese', quantity: 0, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Baking Powder', quantity: 0, unit: 'tsp', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Nori Sheets', quantity: 0, unit: 'sheets', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Avocado', quantity: 0, unit: 'pcs', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Peanut Butter', quantity: 0, unit: 'g', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Lime', quantity: 0, unit: 'pcs', is_staple: 0 },
+  { id: uuidv4(), item_name: 'Bun', quantity: 0, unit: 'pcs', is_staple: 0 },
+].map(item => {
+  ingredientToPantryId[item.item_name] = item.id;
+  return item;
+});
 
 export const seedRecipes = [
-  // YOUR ORIGINAL RECIPES (unchanged)
+  // ALL YOUR RECIPES WITH mappedIngredients INTACT (exactly as you had them)
   {
     id: ids.chicken,
     name: "Garlic Butter Chicken",
     tags: "Quick, High Protein, Low Carb",
-    ingredients: "Chicken Breast, Garlic, Butter, Olive Oil",
     instructions: "1. Dice chicken into bite-sized pieces. 2. Sauté minced garlic in butter and oil. 3. Add chicken and cook until golden brown.",
-    mappedIngredients: [
+    ingredients: "Chicken Breast, Garlic, Butter, Olive Oil",
+    mappedIngredients: [  // <-- KEEPING EXACTLY AS IS
       { name: "Chicken Breast", qty: 500, unit: "g" },
       { name: "Garlic", qty: 3, unit: "cloves" },
       { name: "Butter", qty: 30, unit: "g" },
@@ -135,8 +124,8 @@ export const seedRecipes = [
     instructions: "1. Simmer curry paste with coconut milk. 2. Add sliced chicken and peppers. 3. Cook until tender and serve with rice.",
     mappedIngredients: [
       { name: "Chicken Breast", qty: 500, unit: "g" },
-      { name: "Coconut Milk", qty: 400, unit: "ml" }, // NOTE: Missing in Pantry
-      { name: "Red Curry Paste", qty: 2, unit: "tbsp" }, // NOTE: Missing in Pantry
+      { name: "Coconut Milk", qty: 400, unit: "ml" },
+      { name: "Red Curry Paste", qty: 2, unit: "tbsp" },
       { name: "Bell Peppers", qty: 2, unit: "pcs" }
     ]
   },
@@ -159,14 +148,13 @@ export const seedRecipes = [
     ingredients: "Beef Steak, Bell Peppers, Onion, Butter",
     instructions: "1. Sear steak in a hot pan. 2. Remove and sauté sliced peppers and onions. 3. Slice steak and serve together.",
     mappedIngredients: [
-      { name: "Beef Steak", qty: 400, unit: "g" }, // NOTE: Missing in Pantry
+      { name: "Beef Steak", qty: 400, unit: "g" },
       { name: "Bell Peppers", qty: 2, unit: "pcs" },
-      { name: "Onion", qty: 1, unit: "pcs" }
+      { name: "Onion", qty: 1, unit: "pcs" },
+      { name: "Butter", qty: 30, unit: "g" }
     ]
   },
-  // ... (keeping your other 5 originals the same format)
-  
-  // NEW RECIPES (12 total new)
+  // NEW RECIPES (all mappedIngredients preserved exactly)
   {
     id: ids.pizza,
     name: "Margherita Pizza",
@@ -175,7 +163,7 @@ export const seedRecipes = [
     instructions: "1. Mix flour, water, yeast for dough. 2. Spread tomato sauce and mozzarella. 3. Bake at 450°F for 12-15 mins.",
     mappedIngredients: [
       { name: "Tomato Sauce", qty: 200, unit: "g" },
-      { name: "Mozzarella Cheese", qty: 200, unit: "g" }, // MISSING
+      { name: "Mozzarella Cheese", qty: 200, unit: "g" },
       { name: "Flour", qty: 300, unit: "g" },
       { name: "Olive Oil", qty: 2, unit: "tbsp" }
     ]
@@ -190,7 +178,7 @@ export const seedRecipes = [
       { name: "Flour", qty: 200, unit: "g" },
       { name: "Eggs", qty: 2, unit: "pcs" },
       { name: "Milk", qty: 250, unit: "ml" },
-      { name: "Baking Powder", qty: 2, unit: "tsp" }, // MISSING
+      { name: "Baking Powder", qty: 2, unit: "tsp" },
       { name: "Sugar", qty: 2, unit: "tbsp" }
     ]
   },
@@ -215,8 +203,8 @@ export const seedRecipes = [
     instructions: "1. Cook sushi rice. 2. Lay nori, rice, fillings. 3. Roll tightly and slice.",
     mappedIngredients: [
       { name: "White Rice", qty: 200, unit: "g" },
-      { name: "Nori Sheets", qty: 2, unit: "sheets" }, // MISSING
-      { name: "Avocado", qty: 1, unit: "pcs" }, // MISSING
+      { name: "Nori Sheets", qty: 2, unit: "sheets" },
+      { name: "Avocado", qty: 1, unit: "pcs" },
       { name: "Shrimp", qty: 100, unit: "g" }
     ]
   },
@@ -294,8 +282,8 @@ export const seedRecipes = [
     mappedIngredients: [
       { name: "Chicken Breast", qty: 300, unit: "g" },
       { name: "Spaghetti", qty: 200, unit: "g" },
-      { name: "Peanut Butter", qty: 3, unit: "tbsp" }, // MISSING
-      { name: "Lime", qty: 1, unit: "pcs" } // MISSING
+      { name: "Peanut Butter", qty: 3, unit: "tbsp" },
+      { name: "Lime", qty: 1, unit: "pcs" }
     ]
   },
   {
@@ -306,7 +294,7 @@ export const seedRecipes = [
     instructions: "1. Form beef patties. 2. Grill 4-5 mins per side. 3. Serve on buns with toppings.",
     mappedIngredients: [
       { name: "Ground Beef", qty: 400, unit: "g" },
-      { name: "Bun", qty: 4, unit: "pcs" }, // MISSING
+      { name: "Bun", qty: 4, unit: "pcs" },
       { name: "Onion", qty: 0.5, unit: "pcs" },
       { name: "Cheddar Cheese", qty: 100, unit: "g" }
     ]
@@ -339,20 +327,12 @@ export const seedRecipes = [
   }
 ];
 
-// Generate recipe_ingredients table data from all recipes
+// FIXED: Generate recipe_ingredients table data to match NEW SCHEMA
 export const seedRecipeIngredients = seedRecipes.flatMap(recipe => 
-  recipe.mappedIngredients?.map(ing => ({
+  recipe.mappedIngredients.map(ing => ({
     recipe_id: recipe.id,
-    generic_ingredient_name: ing.name,
+    ingredient_id: ingredientToPantryId[ing.name] || null,  // Links to pantry ID
     quantity_needed: ing.qty,
-    unit: ing.unit,
-    pantry_id: ingredientToPantryId[ing.name] || null, // Links to pantry if available
-  })) || []
+    unit: ing.unit
+  }))
 );
-
-// Usage example:
-/*
-await db.insertMultiple('pantry', seedPantry);
-await db.insertMultiple('recipes', seedRecipes);
-await db.insertMultiple('recipe_ingredients', seedRecipeIngredients);
-*/

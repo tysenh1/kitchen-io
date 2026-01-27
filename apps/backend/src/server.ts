@@ -65,7 +65,7 @@ Example:
 {
   "thought_process": "User wants Mexican + has tomatoes/onions → Taco Bowl and Quesadillas match",
   "flag": "SUCCESS", 
-  "message": "Perfect! With your pantry I recommend **Taco Bowl (ID:5)** or **Quick Quesadillas (ID:8)**. Which sounds better?",
+  "message": "Perfect! With your pantry I recommend **Taco Bowl** or **Quick Quesadillas**. Which sounds better?",
   "recipe_id": null,
   "reset_context": false
 }`
@@ -84,18 +84,33 @@ app.get('/', (req, res) => {
 })
 
 const toolsLogic: KitchenTools = {
-  getPantry: async () => {
-    return new Promise((resolve) => {
-      db.all("SELECT item_name, quantity, unit FROM pantry", (err, rows) => {
-        console.log("PANTRY", rows)
-        resolve(JSON.stringify(rows || "Pantry is empty."))
-      });
-    });
-  },
+  // getPantry: async () => {
+  //   return new Promise((resolve) => {
+  //     db.all("SELECT item_name, quantity, unit FROM pantry WHERE quantity > 0;", (err, rows) => {
+  //       console.log("PANTRY", rows)
+  //       resolve(JSON.stringify(rows || "Pantry is empty."))
+  //     });
+  //   });
+  // },
   browseAllRecipes: async () => {
     return new Promise((resolve) => {
-      db.all("SELECT id, name, tags FROM recipes", [], (err, rows: RecipeBase) => {
-        console.log("RECIPES", rows)
+      db.all(`
+        SELECT 
+  r.id, 
+  r.name, 
+  r.tags
+FROM recipes r
+JOIN recipe_ingredients ri ON r.id = ri.recipe_id
+JOIN pantry p ON ri.ingredient_id = p.id
+GROUP BY r.id, r.name, r.tags
+HAVING 
+  COUNT(*) = SUM(
+    CASE 
+      WHEN p.quantity > 0 AND p.quantity >= ri.quantity_needed 
+      THEN 1 
+      ELSE 0 
+    END
+  );`, [], (err, rows: RecipeBase) => {
         if (err) resolve(`Error accessiong database: ${err}`)
         resolve(JSON.stringify(rows))
       })
@@ -117,8 +132,6 @@ const toolsLogic: KitchenTools = {
 `;
       db.get(query, [recipe_id], (err, row) => {
         console.log(err)
-        console.log("RECIPE ID", recipe_id);
-        console.log("RECIPE DETAILS", row)
         resolve(JSON.stringify(row || { error: "Recipe not found in database." }));
       });
     });
@@ -126,18 +139,18 @@ const toolsLogic: KitchenTools = {
 }
 
 const toolDefinitions: Tool[] = [
-  {
-    type: 'function',
-    function: {
-      name: 'getPantry',
-      description: 'Call this FIRST to see what ingredients are available.',
-      parameters: {
-        type: 'object',
-        properties: {},
-        required: []
-      }
-    }
-  },
+  // {
+  //   type: 'function',
+  //   function: {
+  //     name: 'getPantry',
+  //     description: 'Call this FIRST to see what ingredients are available.',
+  //     parameters: {
+  //       type: 'object',
+  //       properties: {},
+  //       required: []
+  //     }
+  //   }
+  // },
   {
     type: 'function',
     function: {
@@ -169,48 +182,61 @@ const toolDefinitions: Tool[] = [
   }
 ];
 
-// async function runAgentLoop(socket, history) {
-//   const response = await ollama.chat({
-//     model: 'llama3.1:8b',
-//     messages: history,
-//     tools: toolDefinitions,
-//     // format: 'json', // Forces Qwen to strictly follow the JSON schema
-//     options: { temperature: 0.1 }
-//   });
-//
-//   console.log("RESPONSEEEEEEEEEEEEEE:", response)
-//
-//   // console.log("AI MESSAGE:", response.message.content)
-//   // console.log("TOOL CALLS:", response.message.tool_calls)
-//
-//   try {
-//     const parsed = JSON.parse(response.message.content);
-//
-//     if (parsed.reset_context === true || parsed.flag === "NO_MATCH") {
-//       console.log("🧹 Flag received: Resetting history to prevent context pollution.");
-//
-//       history.length = 0;
-//       historyPush(history, SYSTEM_PROMPT)
-//
-//       historyPush(history, { role: 'user', content: 'The previous search failed. Lets start over. What else can I make?' })
-//     }
-//
-//     socket.emit('ai_stream', parsed.message);
-//     socket.emit('stream_done');
-//
-//   } catch (e) {
-//     console.error("AI failed to send valid JSON", e);
-//     socket.emit('error', "Logic Error: AI went off-script.");
-//   }
-// }
-
 function historyPush(currentHistory: Message[], newMessage: Message) {
   currentHistory.push(newMessage);
   if (currentHistory.length > 6) {
     currentHistory.shift();
   }
-  console.log(currentHistory)
-  // return [...currentHistory];
+}
+
+function isToolCall(content: string) {
+  try {
+    const parsed = JSON.parse(content);
+    if (parsed.name && parsed.arguments) {
+      return true
+    } else {
+      return false
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+async function handleToolCall(toolName: string, args, history: Message[]): Promise<ChatResponse> {
+  const argsArray: string[] = [];
+  if (args && typeof args === 'object') {
+    for (let arg of Object.values(args)) {
+      argsArray.push(String(arg))
+    }
+  }
+
+  const func = toolsLogic[toolName];
+  if (!func) throw new Error(`Unknown tool: ${toolName}`)
+
+  const toolData = await func(...argsArray)
+
+  historyPush(history, { role: 'tool', content: JSON.stringify(toolData) })
+
+  while (true) {
+    const response = await ollama.chat({
+      model: 'qwen2.5:7b-instruct-q4_K_M',
+      messages: history,
+      tools: toolDefinitions,
+      format: 'json',
+      options: { temperature: 0.1 }
+    })
+
+    if (isToolCall(response.message.content)) {
+      const content = JSON.parse(response.message.content)
+      console.log("IS A TOOL CALL", content)
+
+      await handleToolCall(content.name, content.arguments, history)
+    } else {
+      console.log("IS NOT A TOOL CALL", response)
+      return response;
+    }
+  }
+
 }
 
 io.on('connection', (socket) => {
@@ -229,7 +255,10 @@ io.on('connection', (socket) => {
 
     try {
       let response = await ollama.chat({
-        model: 'llama3.1:8b',
+        // model: 'llama3.1:8b',
+        // model: 'glm-4.7-flash:q4_K_M',
+        model: 'qwen2.5:7b-instruct-q4_K_M',
+        // model: 'llama3.1:8b-instruct-q4_K_M',
         messages: history,
         tools: toolDefinitions,
         format: 'json',
@@ -238,32 +267,43 @@ io.on('connection', (socket) => {
           // num_predict: 100
         }
       });
+      console.log('AI MESSAGEEEEE', response)
+      // console.log("AI TOOL CALLSSSSS", response.message.tool_calls)
+      if (isToolCall(response.message.content)) {
+        const content = JSON.parse(response.message.content)
+        response = await handleToolCall(content.name, content.arguments, history)
 
-      while (response.message.tool_calls && response.message.tool_calls.length > 0) {
-        historyPush(history, response.message)
-
-        for (const tool of response.message.tool_calls) {
-          const fnName = tool.function.name as keyof KitchenTools;
-          const args = tool.function.arguments as any;
-
-          socket.emit('agent_status', `EXECUTING: ${fnName}`);
-
-          const result = await (toolsLogic[fnName] as any)(args);
-
-          historyPush(history, { role: 'tool', content: result })
-        }
-
-        response = await ollama.chat({
-          model: 'llama3.1:8b',
-          messages: history,
-          tools: toolDefinitions,
-          format: 'json',
-          options: {
-            temperature: 0.1,
-            // num_predict: 100
-          }
-        });
       }
+
+      // while (response.message.tool_calls && response.message.tool_calls.length > 0) {
+      //   historyPush(history, response.message)
+      //
+      //   for (const tool of response.message.tool_calls) {
+      //     const fnName = tool.function.name as keyof KitchenTools;
+      //     const args = tool.function.arguments as any;
+      //
+      //     socket.emit('agent_status', `EXECUTING: ${fnName}`);
+      //
+      //     const result = await (toolsLogic[fnName] as any)(args);
+      //
+      //     historyPush(history, { role: 'tool', content: result })
+      //   }
+      //
+      //   response = await ollama.chat({
+      //     // model: 'llama3.1:8b',
+      //     // model: 'glm-4.7-flash:q4_K_M',
+      //     model: 'qwen2.5:7b-instruct-q4_K_M',
+      //     // model: 'llama3.1:8b-instruct-q4_K_M',
+      //     messages: history,
+      //     tools: toolDefinitions,
+      //     format: 'json',
+      //     options: {
+      //       temperature: 0.1,
+      //       // num_predict: 100
+      //     }
+      //   });
+      //   console.log("AI   SECONDDDD RESPONSE", response)
+      // }
       const content: LLMResponse = JSON.parse(response.message.content)
 
       socket.emit('ai_stream', content.message);
