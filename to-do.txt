@@ -1,15 +1,11 @@
-Implement a helper function for the llm so that its easier to check if items are out of stock.
-    maybe mark them as out of stock during queries too?
-    At the very least you can do comparisons in sql to run checks based on quantity needed vs quantity in pantry
-
-^^^ THIS IS DONE, DB ONLY RETURNS RECIPES WHERE ALL INGREDIENTS ARE PRESENT ^^^
 Need to work on prompt engineering so that it actually asks for stuff more than once before just recommending stuff
 Also need to improve seed data because theres fuck all right now so the ai doesn't feel the need to ask multiple questions
 database needs to be improved because this bitch is gonna slow down when I get more than like 200 recipes in there
+
+^^^ need to figure out allergens and that stuff in code and also like all of the item code on the backend lmao ^^^
 
 Need to start getting the program together that will actually do the adding and maybe even removing of items in the db.
 
 Ai is mostly set right now, at least in the sql queries and other code (some code might need to be removed). Prompt needs improvement though.
 
 write a proper readme for this
-fix up the server.ts file, it kinda sucks right now

@@ -3,24 +3,27 @@ import { seedPantry, seedRecipes, seedRecipeIngredients } from './seedData.ts';
 import path from 'path';
 import fs from 'fs';
 
-const db = new sqlite3.Database('./kitchen.db');
+const db = new sqlite3.Database('./db.db');
 
 // ✅ FIXED: Import seedRecipeIngredients from your seedData.ts
-const schemaPath = '/home/tysenh1/Coding/kitchenio/apps/backend/schema.sql';
-const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+const schemaPath = '/home/tysenh1/Coding/kitchenio/apps/backend/';
+const schemaSql = fs.readFileSync(schemaPath + 'schema.sql', 'utf8');
 
 const runImport = () => {
   db.serialize(() => {
-    console.log('🔄 Starting database seeding...');
-    
+    console.log('🔄 Starting kitchen database seeding...');
+
     // 1. Drop and recreate tables
     db.run('DROP TABLE IF EXISTS recipe_ingredients');
     db.run('DROP TABLE IF EXISTS recipes');
     db.run('DROP TABLE IF EXISTS pantry');
-    
+    db.run('DROP TABLE IF EXISTS item')
+    db.run('DROP TABLE IF EXISTS allergens');
+    db.run('DROP TABLE IF EXISTS item_allergens');
+
     // 2. ✅ FIXED: Execute schema FIRST (creates tables)
     db.exec(schemaSql);
-    
+
     // 3. Insert Pantry
     const pantryStmt = db.prepare("INSERT INTO pantry (id, item_name, quantity, unit, is_staple) VALUES (?, ?, ?, ?, ?)");
     seedPantry.forEach(item => {
@@ -50,11 +53,13 @@ const runImport = () => {
 
   db.close((err) => {
     if (err) {
-      console.error('❌ Error closing DB:', err.message);
+      console.error('❌ Error closing db:', err.message);
     } else {
       console.log('🔒 Database connection closed.');
     }
   });
+
+
 };
 
 runImport();

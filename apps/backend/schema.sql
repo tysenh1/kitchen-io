@@ -20,3 +20,25 @@ CREATE TABLE IF NOT EXISTS recipe_ingredients(
     FOREIGN KEY(ingredient_id) REFERENCES pantry(id),
     FOREIGN KEY(recipe_id) REFERENCES recipes(id)
 );
+CREATE TABLE IF NOT EXISTS item(
+    id TEXT PRIMARY KEY,
+    barcode TEXT UNIQUE NOT NULL,
+    common_name TEXT,
+    brand TEXT,
+    unit_size REAL,
+    unit_type TEXT
+);
+CREATE TABLE IF NOT EXISTS allergens(
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
+);
+CREATE TABLE IF NOT EXISTS item_allergens(
+    item_id TEXT NOT NULL,
+    allergen_id TEXT NOT NULL PRIMARY KEY(
+        item_id,
+        allergen_id
+    ),
+    FOREIGN KEY(item_id) REFERENCES item(id)
+ON DELETE CASCADE FOREIGN KEY(allergen_id) REFERENCES allergens(id)
+ON DELETE CASCADE
+);

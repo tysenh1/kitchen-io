@@ -8,8 +8,16 @@ export interface ServerToClientEvents {
   agent_status: (status: string) => void;
   stream_done: () => void;
   error: (msg: string) => void;
+  barcode_stream: (content: BarcodeResponse) => void;
 }
 
 export interface ClientToServerEvents {
   user_msg: (message: string) => void;
+  barcode: (barcode: string) => void;
+}
+
+export interface BarcodeResponse {
+  name: string;
+  barcode: string;
+  image: string;
 }
