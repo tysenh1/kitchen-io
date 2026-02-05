@@ -4,17 +4,38 @@ import type { ChatMessage, ServerToClientEvents, ClientToServerEvents, BarcodeRe
 import { marked } from 'marked';
 import 'github-markdown-css/github-markdown-dark.css';
 import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import type { ItemInfo } from '../../shared/types.ts';
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io('http://localhost:3001');
+
+function barcodeResponseHandler(item: ItemInfo, setItem: React.Dispatch<React.SetStateAction<ItemInfo>>) {
+  for (const [key, value] of Object.entries(item)) {
+    if (value) {
+      setItem(prev => ({
+        ...prev,
+        [key]: value
+      }))
+    }
+  }
+}
 
 function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const chatEnd = useRef<HTMLDivElement | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [barcodeResult, setBarcodeResult] = useState<BarcodeResponse | null>(null);
+  const [barcodeResult, setBarcodeResult] = useState<ItemInfo | null>(null);
   const [isScannerActive, setIsScannerActive] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [item, setItem] = useState<ItemInfo>({
+    code: '',
+    allergens: [],
+    genericName: '',
+    imageUrl: 'placeholder-item.jpg',
+    productName: '',
+    quantity: '',
+    unit: ''
+  })
 
   useEffect(() => {
     socket.on('ai_stream', (text) => {
@@ -28,8 +49,9 @@ function App() {
       })
     })
 
-    socket.on('barcode_stream', (content) => {
+    socket.on('barcode_stream', (content: ItemInfo) => {
       console.log(content)
+      barcodeResponseHandler(content, setItem)
       setBarcodeResult(content)
       setIsLoading(false)
     })
@@ -50,11 +72,11 @@ function App() {
           fps: 20,
           qrbox: { width: 300, height: 250 },
           aspectRatio: 1.777778,
-          // formatsToSupport: [
-          //   Html5QrcodeSupportedFormats.CODE_128,
-          //   Html5QrcodeSupportedFormats.EAN_13,
-          //   Html5QrcodeSupportedFormats.UPC_A
-          // ]
+          formatsToSupport: [
+            // Html5QrcodeSupportedFormats.CODE_128,
+            // Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.UPC_A
+          ]
         },
         false
       );
@@ -62,10 +84,13 @@ function App() {
       scanner.render(
         (text) => {
           socket.emit('barcode', text)
+          setIsScanning(false)
           setIsLoading(true)
+          return
         },
+        //@ts-ignore ignore
         (err) => {
-          console.error("Error scanning barcode:", err)
+          // console.error("Error scanning barcode:", err)
         }
       )
     }
@@ -152,13 +177,17 @@ function App() {
   )
 }
 
-function ScannerResponse({ content }: { content: BarcodeResponse | null }) {
+function ScannerResponse({ content }: { content: ItemInfo | null }) {
   if (content) {
     return (
       <div>
-        <p>Name: {content.name}</p>
-        <p>Barcode: {content.barcode}</p>
-        <img src={content.image || ''} />
+        <p>Generic Name: {content.genericName}</p>
+        <p>Barcode: {content.code}</p>
+        <img src={content.imageUrl} />
+        <p>Allergens: {content.allergens}</p>
+        <p>Product Name: {content.productName}</p>
+        <p>Quantity: {content.quantity}</p>
+        <p>Unit: {content.unit}</p>
       </div>
     )
   } else {
