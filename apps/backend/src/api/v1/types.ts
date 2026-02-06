@@ -49,6 +49,7 @@ export interface OFFProductResponse {
   product_name?: string;
   product_name_en?: string;
   product_quantity?: number;
+  product_quantity_unit?: string;
   quantity?: string;
   product_quantity_string?: string;
   net_weight_unit?: string;

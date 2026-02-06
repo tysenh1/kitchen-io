@@ -24,8 +24,7 @@ function App() {
   const [input, setInput] = useState('');
   const chatEnd = useRef<HTMLDivElement | null>(null);
   const [isScanning, setIsScanning] = useState(false);
-  const [barcodeResult, setBarcodeResult] = useState<ItemInfo | null>(null);
-  const [isScannerActive, setIsScannerActive] = useState(false)
+  // const [barcodeResult, setBarcodeResult] = useState<ItemInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false)
   const [item, setItem] = useState<ItemInfo>({
     code: '',
@@ -52,7 +51,8 @@ function App() {
     socket.on('barcode_stream', (content: ItemInfo) => {
       console.log(content)
       barcodeResponseHandler(content, setItem)
-      setBarcodeResult(content)
+      // setBarcodeResult(content)
+      barcodeResponseHandler(content, setItem)
       setIsLoading(false)
     })
 
@@ -84,11 +84,10 @@ function App() {
       scanner.render(
         (text) => {
           socket.emit('barcode', text)
-          setIsScanning(false)
           setIsLoading(true)
-          return
+          setIsScanning(false);
         },
-        //@ts-ignore ignore
+        //@ts-expect-error ignore
         (err) => {
           // console.error("Error scanning barcode:", err)
         }
@@ -107,7 +106,7 @@ function App() {
     if (isLoading) {
       return <div>LOAAADING</div>
     } else {
-      return <ScannerResponse content={barcodeResult} />
+      return <ScannerResponse content={item} />
     }
   }
 
@@ -125,10 +124,7 @@ function App() {
       {/* Header */}
       <div className="border-b border-green-800 pb-2 mb-4 flex justify-between items-center">
         <h1 className="text-xl tracking-widest">KITCHEN_OS</h1>
-        {!isScanning && (
-
-          <button onClick={() => { setBarcodeResult(null); setIsScanning(true); setIsScannerActive(true) }} className='bg-white cursor-pointer'>{barcodeResult ? "Scan another barcode" : "Start barcode scanner"}</button>
-        )}
+        <button onClick={() => { setBarcodeResult(null); setIsScanning(true); }} className='bg-white cursor-pointer'>{barcodeResult ? "Scan another barcode" : "Start barcode scanner"}</button>
       </div>
 
       {/* Chat Log 
@@ -180,15 +176,15 @@ function App() {
 function ScannerResponse({ content }: { content: ItemInfo | null }) {
   if (content) {
     return (
-      <div>
-        <p>Generic Name: {content.genericName}</p>
-        <p>Barcode: {content.code}</p>
+      <form>
+        <input>Generic Name: {content.genericName}</input>
+        <input>Barcode: {content.code}</input>
         <img src={content.imageUrl} />
-        <p>Allergens: {content.allergens}</p>
-        <p>Product Name: {content.productName}</p>
-        <p>Quantity: {content.quantity}</p>
-        <p>Unit: {content.unit}</p>
-      </div>
+        <input>Allergens: {content.allergens}</input>
+        <input>Product Name: {content.productName}</input>
+        <input>Quantity: {content.quantity}</input>
+        <input>Unit: {content.unit}</input>
+      </form>
     )
   } else {
     return <></>
