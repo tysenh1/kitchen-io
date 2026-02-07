@@ -13,7 +13,7 @@ function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const chatEnd = useRef<HTMLDivElement | null>(null);
-  const [isScanning, setIsScanning, lastResult, isLoading] = useScanner(socket)
+  const { isScanning, setIsScanning, lastResult, isLoading } = useScanner(socket)
 
   useEffect(() => {
     socket.on('ai_stream', (text) => {
