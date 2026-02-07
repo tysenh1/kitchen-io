@@ -1,40 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
-import io, { Socket } from 'socket.io-client';
 import type { ChatMessage, ServerToClientEvents, ClientToServerEvents, BarcodeResponse } from './types';
 import { marked } from 'marked';
 import 'github-markdown-css/github-markdown-dark.css';
-import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import type { ItemInfo } from '../../shared/types.ts';
+import { socket } from './lib/socket.ts';
+import { useScanner } from './hooks/useScanner.ts';
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io('http://localhost:3001');
 
-function barcodeResponseHandler(item: ItemInfo, setItem: React.Dispatch<React.SetStateAction<ItemInfo>>) {
-  for (const [key, value] of Object.entries(item)) {
-    if (value) {
-      setItem(prev => ({
-        ...prev,
-        [key]: value
-      }))
-    }
-  }
-}
+
 
 function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const chatEnd = useRef<HTMLDivElement | null>(null);
-  const [isScanning, setIsScanning] = useState(false);
-  // const [barcodeResult, setBarcodeResult] = useState<ItemInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(false)
-  const [item, setItem] = useState<ItemInfo>({
-    code: '',
-    allergens: [],
-    genericName: '',
-    imageUrl: 'placeholder-item.jpg',
-    productName: '',
-    quantity: '',
-    unit: ''
-  })
+  const [isScanning, setIsScanning, lastResult, isLoading] = useScanner(socket)
 
   useEffect(() => {
     socket.on('ai_stream', (text) => {
@@ -48,65 +27,22 @@ function App() {
       })
     })
 
-    socket.on('barcode_stream', (content: ItemInfo) => {
-      console.log(content)
-      barcodeResponseHandler(content, setItem)
-      // setBarcodeResult(content)
-      barcodeResponseHandler(content, setItem)
-      setIsLoading(false)
-    })
+
 
     return () => {
       socket.off('ai_stream');
       socket.off('agent_status');
-      socket.off("barcode_stream")
     };
   }, [])
 
-  useEffect(() => {
-    let scanner: Html5QrcodeScanner | null = null;
-    if (isScanning) {
-      scanner = new Html5QrcodeScanner(
-        "reader",
-        {
-          fps: 20,
-          qrbox: { width: 300, height: 250 },
-          aspectRatio: 1.777778,
-          formatsToSupport: [
-            // Html5QrcodeSupportedFormats.CODE_128,
-            // Html5QrcodeSupportedFormats.EAN_13,
-            Html5QrcodeSupportedFormats.UPC_A
-          ]
-        },
-        false
-      );
 
-      scanner.render(
-        (text) => {
-          socket.emit('barcode', text)
-          setIsLoading(true)
-          setIsScanning(false);
-        },
-        //@ts-expect-error ignore
-        (err) => {
-          // console.error("Error scanning barcode:", err)
-        }
-      )
-    }
-
-    return () => {
-      if (scanner) {
-        scanner.clear().catch(e => console.error("Cleanup error", e))
-      }
-    }
-  }, [isScanning])
 
 
   const renderScannerLogic = () => {
     if (isLoading) {
       return <div>LOAAADING</div>
     } else {
-      return <ScannerResponse content={item} />
+      return <ScannerResponse content={lastResult} />
     }
   }
 
@@ -124,7 +60,7 @@ function App() {
       {/* Header */}
       <div className="border-b border-green-800 pb-2 mb-4 flex justify-between items-center">
         <h1 className="text-xl tracking-widest">KITCHEN_OS</h1>
-        <button onClick={() => { setBarcodeResult(null); setIsScanning(true); }} className='bg-white cursor-pointer'>{barcodeResult ? "Scan another barcode" : "Start barcode scanner"}</button>
+        <button onClick={() => { setIsScanning(true); }} className='bg-white cursor-pointer'>{isScanning ? "Scan another barcode" : "Start barcode scanner"}</button>
       </div>
 
       {/* Chat Log 
