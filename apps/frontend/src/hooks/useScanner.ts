@@ -6,22 +6,18 @@ import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 export function useScanner(socket: Socket) {
   const [isScanning, setIsScanning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [lastResult, setLastResult] = useState<ItemInfo>({
-    code: '',
-    allergens: [],
-    genericName: '',
-    imageUrl: 'placeholder-item.jpg',
-    productName: '',
-    quantity: '',
-    unit: ''
-  })
+  const [lastResult, setLastResult] = useState<ItemInfo | null>(null)
+  const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false)
 
   useEffect(() => {
     socket.on('barcode_stream', (content: ItemInfo) => {
       barcodeResponseHandler(content, setLastResult)
       console.log(content)
       setIsLoading(false)
+      setIsScannerVisible(true)
     })
+
+
 
     return () => {
       socket.off('barcode_stream')
@@ -51,6 +47,7 @@ export function useScanner(socket: Socket) {
           socket.emit('barcode', text)
           setIsScanning(false);
           setIsLoading(true);
+          setLastResult(null)
         },
         //@ts-expect-error ignore
         (err) => {
@@ -66,16 +63,27 @@ export function useScanner(socket: Socket) {
     }
   }, [isScanning])
 
-  return { isScanning, lastResult, isLoading };
+  return { isScanning, setIsScanning, lastResult, isLoading, isScannerVisible, setIsScannerVisible };
 }
 
-function barcodeResponseHandler(item: ItemInfo, setItem: React.Dispatch<React.SetStateAction<ItemInfo>>) {
+function barcodeResponseHandler(item: ItemInfo, setItem: React.Dispatch<React.SetStateAction<ItemInfo | null>>) {
+  const newItem: ItemInfo = {
+    code: '',
+    allergens: [],
+    genericName: '',
+    imageUrl: '',
+    productName: '',
+    quantity: '',
+    unit: ''
+  }
   for (const [key, value] of Object.entries(item)) {
     if (value) {
-      setItem(prev => ({
-        ...prev,
-        [key]: value
-      }))
+      // setItem(prev => ({
+      //   ...prev,
+      //   [key]: value
+      // }))
+      newItem[key] = value
     }
   }
+  setItem(newItem)
 }
