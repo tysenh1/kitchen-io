@@ -14,17 +14,16 @@ export function BarcodeScanner({ lastResult, isScannerVisible, isLoading, setIsS
 
 
   return (
-    isScannerVisible && (
+
+    <div className={`relative z-10 bg-black rounded-2xl border-white border t-50% l-50% ${isScannerVisible ? 'block' : 'hidden'}`} >
       <div>
-        <div>
-          <button onClick={() => { setIsScannerVisible(false); setIsScanning(false) }} className='border-black p-4'>Close Scanner</button>
-          <button onClick={() => setIsScanning(true)} className='border-black p-4'>Scan Again</button>
-        </div>
-        <h2>Scanning</h2>
-        <div id='reader'></div>
-        {BarcodeResponse({ lastResult, isLoading })}
+        <button onClick={() => { setIsScannerVisible(false); setIsScanning(false) }} className='border-black p-4'>Close Scanner</button>
+        <button onClick={() => setIsScanning(true)} className='border-black p-4'>Scan Again</button>
       </div>
-    )
+      <h2>Scanning</h2>
+      <div id='reader' className='rounded-bl-2xl rounded-br-2xl'></div>
+      {BarcodeResponse({ lastResult, isLoading })}
+    </div >
 
   )
 }
