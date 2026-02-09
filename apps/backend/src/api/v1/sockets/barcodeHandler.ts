@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import * as ProductService from '../services/productService.ts';
+import * as ProductService from '../services/itemService.ts';
 
 export const registerBarcodeHandlers = (socket: Socket) => {
   socket.on('barcode', async (barcode: string) => {

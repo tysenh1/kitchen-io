@@ -1,6 +1,7 @@
 import type { ItemInfo } from '../../../../../shared/types.ts';
 import { db } from '../config/db.ts';
 import type { OFFResponse } from '../types.ts';
+import { randomUUID } from 'crypto';
 
 const CONVERSION_RATES: Record<string, number> = {
   "lb": 453.59,
@@ -78,3 +79,40 @@ export const handleBarcodeLookup = async (barcode: string) => {
   }
   return "Unknown Item";
 };
+
+
+export const createItem = (itemInfo: ItemInfo) => {
+  const itemId = randomUUID();
+  const sql = `
+    INSERT INTO item (id, barcode, product_name, generic_name, brand, unit_size, unit_type, image_url)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+  `
+
+  const params = [
+    itemId,
+    itemInfo.code,
+    itemInfo.productName || '',
+    itemInfo.genericName || '',
+    itemInfo.brand || '',
+    itemInfo.quantity || '',
+    itemInfo.unit || '',
+    itemInfo.imageUrl || ''
+  ]
+
+  db.run(sql, params, (err) => {
+    if (err) {
+      console.error("DB Error:", err)
+      throw new Error(err.message)
+    }
+  })
+
+  if (itemInfo.allergens) {
+    for (const allergen of itemInfo.allergens) {
+      const allergenId = randomUUID()
+      console.log(allergen)
+      //       const sql2 = `
+      //         INSERT 
+      // `
+    }
+  }
+}

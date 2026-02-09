@@ -1,13 +1,11 @@
-import express from 'express';
+import app from './app.ts';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { initSockets } from './api/v1/sockets/index.ts'
 
-const app = express();
 const server = createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
 
-app.use(express.json());
+const io = new Server(server, { cors: { origin: '*' } });
 
 initSockets(io);
 

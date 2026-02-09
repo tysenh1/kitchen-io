@@ -14,7 +14,7 @@ function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const chatEnd = useRef<HTMLDivElement | null>(null);
-  const { lastResult, isLoading, isScannerVisible, setIsScannerVisible, setIsScanning } = useScanner(socket)
+  const { lastResult, setLastResult, isLoading, isScannerVisible, setIsScannerVisible, setIsScanning } = useScanner(socket)
 
   useEffect(() => {
     socket.on('ai_stream', (text) => {
@@ -58,7 +58,7 @@ function App() {
         <button onClick={() => { setIsScannerVisible(true); setIsScanning(true); }} className='bg-white cursor-pointer'>Start barcode scanner</button>
       </div>
 
-      <BarcodeScanner lastResult={lastResult} isScannerVisible={isScannerVisible} isLoading={isLoading} setIsScannerVisible={setIsScannerVisible} setIsScanning={setIsScanning} />
+      <BarcodeScanner lastResult={lastResult} setLastResult={setLastResult} isScannerVisible={isScannerVisible} isLoading={isLoading} setIsScannerVisible={setIsScannerVisible} setIsScanning={setIsScanning} />
 
       {/* Chat Log 
       <div className="flex-1 overflow-y-auto space-y-4 pr-2">

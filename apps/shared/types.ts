@@ -1,5 +1,6 @@
 export interface ItemInfo {
   code: string;
+  brand?: string;
   allergens?: string[];
   genericName?: string;
   imageUrl?: string;

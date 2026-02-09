@@ -2,8 +2,9 @@
 import { type ItemInfo } from '../../../../../shared/types'
 import { RenderBarcodeResult } from './BarcodeResponse.tsx'
 
-export function BarcodeScanner({ lastResult, isScannerVisible, isLoading, setIsScannerVisible, setIsScanning }: {
+export function BarcodeScanner({ lastResult, setLastResult, isScannerVisible, isLoading, setIsScannerVisible, setIsScanning }: {
   lastResult: ItemInfo | null,
+  setLastResult: React.Dispatch<React.SetStateAction<ItemInfo | null>>,
   isScannerVisible: boolean,
   isLoading: boolean
   setIsScannerVisible: React.Dispatch<React.SetStateAction<boolean>>,
@@ -18,23 +19,24 @@ export function BarcodeScanner({ lastResult, isScannerVisible, isLoading, setIsS
     <div className={`relative z-10 bg-black rounded-2xl border-white border t-50% l-50% ${isScannerVisible ? 'block' : 'hidden'}`} >
       <div>
         <button onClick={() => { setIsScannerVisible(false); setIsScanning(false) }} className='border-black p-4'>Close Scanner</button>
-        <button onClick={() => setIsScanning(true)} className='border-black p-4'>Scan Again</button>
+        <button onClick={() => { setIsScanning(true); setLastResult(null) }} className='border-black p-4'>Scan Again</button>
       </div>
       <h2>Scanning</h2>
       <div id='reader' className='rounded-bl-2xl rounded-br-2xl'></div>
-      {BarcodeResponse({ lastResult, isLoading })}
+      {BarcodeResponse({ lastResult, setLastResult, isLoading })}
     </div >
 
   )
 }
 
 
-export function BarcodeResponse({ lastResult, isLoading }: {
+export function BarcodeResponse({ lastResult, setLastResult, isLoading }: {
   lastResult: ItemInfo | null,
+  setLastResult: React.Dispatch<React.SetStateAction<ItemInfo | null>>,
   isLoading: boolean
 }) {
   if (lastResult && !isLoading) {
-    return <RenderBarcodeResult lastResult={lastResult} />
+    return <RenderBarcodeResult lastResult={lastResult} setLastResult={setLastResult} />
   } else if (isLoading) {
     return <div>LOADINGGGGGGG</div>
   } else {

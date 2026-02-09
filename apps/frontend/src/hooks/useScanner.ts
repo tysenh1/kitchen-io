@@ -59,7 +59,8 @@ export function useScanner(socket: Socket) {
               setIsLoading(false);
               setLastResult(null);
             },
-            (err) => { console.error(err) }
+            // (err) => { console.error(err) }
+            () => { }
           )
         } catch (err) {
           console.error("Scanner failed to start", err)
@@ -119,7 +120,7 @@ export function useScanner(socket: Socket) {
 
   })
 
-  return { isScanning, setIsScanning, lastResult, isLoading, isScannerVisible, setIsScannerVisible };
+  return { isScanning, setIsScanning, lastResult, setLastResult, isLoading, isScannerVisible, setIsScannerVisible };
 }
 
 function barcodeResponseHandler(item: ItemInfo, setItem: React.Dispatch<React.SetStateAction<ItemInfo | null>>) {
