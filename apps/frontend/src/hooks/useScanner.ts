@@ -10,6 +10,7 @@ export function useScanner(socket: Socket) {
   const [isScannerVisible, setIsScannerVisible] = useState<boolean>(false)
   const scannerRef = useRef<Html5Qrcode | null>(null);
 
+
   useEffect(() => {
     socket.on('barcode_stream', (content: ItemInfo) => {
       barcodeResponseHandler(content, setLastResult)

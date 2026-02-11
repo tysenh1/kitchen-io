@@ -9,3 +9,11 @@ Need to start getting the program together that will actually do the adding and 
 Ai is mostly set right now, at least in the sql queries and other code (some code might need to be removed). Prompt needs improvement though.
 
 write a proper readme for this
+
+Need to make allergens more human-readable on the frontend so that when the user edits them, they actually know whats up
+    Allergens actually need to be properly done and maybe style the form on the frontend better while you're at it
+
+Allergens need to be implemented on the backend after the above is done
+
+Logic needs to be inplace so that when an item is submitted to the db thats already in it, it doesn't error out but updates the quanitty in the pantryu
+    quantities and adding items to the pantry needs to be figured out before this.
