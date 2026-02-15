@@ -14,7 +14,7 @@ export function RenderBarcodeResult({ lastResult, setLastResult }: { lastResult:
     e.preventDefault();
 
     if (lastResult) {
-      const response = await fetch(`http://10.0.0.168:3001/api/v1/items`, {
+      const response = await fetch(`https://${import.meta.env.VITE_IP_ADDR}/api/v1/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
