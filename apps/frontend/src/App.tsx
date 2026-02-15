@@ -5,6 +5,7 @@ import 'github-markdown-css/github-markdown-dark.css';
 import type { ItemInfo } from '../../shared/types.ts';
 import { socket } from './lib/socket.ts';
 import { useScanner } from './hooks/useScanner.ts';
+import { BarcodeScanner } from './components/pantry/BarcodeScanner/BarcodeScanner.tsx';
 
 
 
@@ -13,7 +14,7 @@ function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const chatEnd = useRef<HTMLDivElement | null>(null);
-  const { isScanning, setIsScanning, lastResult, isLoading } = useScanner(socket)
+  const { lastResult, setLastResult, isLoading, isScannerVisible, setIsScannerVisible, setIsScanning } = useScanner(socket)
 
   useEffect(() => {
     socket.on('ai_stream', (text) => {
@@ -38,13 +39,7 @@ function App() {
 
 
 
-  const renderScannerLogic = () => {
-    if (isLoading) {
-      return <div>LOAAADING</div>
-    } else {
-      return <ScannerResponse content={lastResult} />
-    }
-  }
+
 
   const send = () => {
     if (!input) return;
@@ -60,8 +55,10 @@ function App() {
       {/* Header */}
       <div className="border-b border-green-800 pb-2 mb-4 flex justify-between items-center">
         <h1 className="text-xl tracking-widest">KITCHEN_OS</h1>
-        <button onClick={() => { setIsScanning(true); }} className='bg-white cursor-pointer'>{isScanning ? "Scan another barcode" : "Start barcode scanner"}</button>
+        <button onClick={() => { setIsScannerVisible(true); setIsScanning(true); }} className='bg-white cursor-pointer'>Start barcode scanner</button>
       </div>
+
+      <BarcodeScanner lastResult={lastResult} setLastResult={setLastResult} isScannerVisible={isScannerVisible} isLoading={isLoading} setIsScannerVisible={setIsScannerVisible} setIsScanning={setIsScanning} />
 
       {/* Chat Log 
       <div className="flex-1 overflow-y-auto space-y-4 pr-2">
@@ -84,11 +81,7 @@ function App() {
         <div ref={chatEnd} />
       </div>*/}
 
-      <div className='absolute w-125 h-auto bg-white'>
-        <h2>Scanning</h2>
-        <div id='reader'></div>
-        {renderScannerLogic()}
-      </div>
+
       {/* Input Area */}
       <div className="mt-4 flex gap-2">
         <input
@@ -109,24 +102,6 @@ function App() {
   )
 }
 
-function ScannerResponse({ content }: { content: ItemInfo | null }) {
-  if (content) {
-    return (
-      <form>
-        <input>Generic Name: {content.genericName}</input>
-        <input>Barcode: {content.code}</input>
-        <img src={content.imageUrl} />
-        <input>Allergens: {content.allergens}</input>
-        <input>Product Name: {content.productName}</input>
-        <input>Quantity: {content.quantity}</input>
-        <input>Unit: {content.unit}</input>
-      </form>
-    )
-  } else {
-    return <></>
-  }
 
-
-}
 
 export default App

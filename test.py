@@ -1,17 +1,19 @@
-import websockets
+import socketio
 import asyncio
 import keyboard
 
 async def send_websocket_event():
+
+    sio = socketio.Client(ssl_verify=False)
     try:
-    async with websockets.connect('ws://localhost:5173') as websocket:
-        def on_key_press(event):
-            asyncio.create_task(send_event(websocket))
+        async with websockets.connect('ws://localhost:5173') as websocket:
+            def on_key_press(event):
+                asyncio.create_task(send_event(websocket))
 
-        keyboard.on_press(on_key_press)
+            keyboard.on_press(on_key_press)
 
-        while True:
-            await asyncio.sleep(1)
+            while True:
+                await asyncio.sleep(1)
 
     except Exception as e:
         print(f"WebSocket error: {e}")

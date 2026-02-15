@@ -23,10 +23,12 @@ CREATE TABLE IF NOT EXISTS recipe_ingredients(
 CREATE TABLE IF NOT EXISTS item(
     id TEXT PRIMARY KEY,
     barcode TEXT UNIQUE NOT NULL,
-    common_name TEXT,
+    product_name TEXT,
+    generic_name TEXT,
     brand TEXT,
     unit_size REAL,
-    unit_type TEXT
+    unit_type TEXT,
+    image_url TEXT
 );
 CREATE TABLE IF NOT EXISTS allergens(
     id TEXT PRIMARY KEY,
@@ -34,11 +36,8 @@ CREATE TABLE IF NOT EXISTS allergens(
 );
 CREATE TABLE IF NOT EXISTS item_allergens(
     item_id TEXT NOT NULL,
-    allergen_id TEXT NOT NULL PRIMARY KEY(
-        item_id,
-        allergen_id
-    ),
-    FOREIGN KEY(item_id) REFERENCES item(id)
-ON DELETE CASCADE FOREIGN KEY(allergen_id) REFERENCES allergens(id)
-ON DELETE CASCADE
+    allergen_id TEXT NOT NULL,
+    PRIMARY KEY(item_id, allergen_id),
+    FOREIGN KEY(item_id) REFERENCES item(id) ON DELETE CASCADE,
+    FOREIGN KEY(allergen_id) REFERENCES allergens(id) ON DELETE CASCADE
 );
