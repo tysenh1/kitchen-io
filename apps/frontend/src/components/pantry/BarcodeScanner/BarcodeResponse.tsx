@@ -1,3 +1,4 @@
+import { fetchItem } from "@/apis/barcodeService";
 import { type ItemInfo } from "../../../../../shared/types"
 import { useState, useEffect } from "react"
 
@@ -13,22 +14,13 @@ export function RenderBarcodeResult({ lastResult, setLastResult }: { lastResult:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (lastResult) {
-      const response = await fetch(`https://${import.meta.env.VITE_IP_ADDR}/api/v1/items`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        },
-        body: JSON.stringify(lastResult)
-      })
-
-      if (response) {
-        // console.log(response)
-        setLastResult(null)
+    try {
+      if (lastResult) {
+        fetchItem(lastResult)
       }
+    } catch (err) {
+      alert(err)
     }
-
 
   }
 
