@@ -1,21 +1,13 @@
-Need to work on prompt engineering so that it actually asks for stuff more than once before just recommending stuff
-Also need to improve seed data because theres fuck all right now so the ai doesn't feel the need to ask multiple questions
-database needs to be improved because this bitch is gonna slow down when I get more than like 200 recipes in there
+Fetch multiple food facts databases if there is missing information for one of them so the user just has to review instead of always adding details for missing fields.
 
-^^^ need to figure out allergens and that stuff in code and also like all of the item code on the backend lmao ^^^
+Add the docker script for the local llms if the user wants to set the application up with an llm
 
-Need to start getting the program together that will actually do the adding and maybe even removing of items in the db.
+Maybe make a status symbol with health checks for all the components on the frontend?
+    Like a status for the api, llm chatbot, OFF database, things like that. 
 
-Ai is mostly set right now, at least in the sql queries and other code (some code might need to be removed). Prompt needs improvement though.
+Also maybe include a fuzzy find step for scanning items that are in the db already, but different quantities.
 
-write a proper readme for this
-
-
-Logic needs to be inplace so that when an item is submitted to the db thats already in it, it doesn't error out but updates the quanitty in the pantryu
-    quantities and adding items to the pantry needs to be figured out before this.
-
-
-
+Finish off the readme
 
 flow of adding an item to db:
     User scans in an item
