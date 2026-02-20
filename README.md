@@ -89,3 +89,13 @@ If the item doesn't exist in your internal pantry or the quantity is different t
 The OFF data is community sourced, which means it can be very inaccurate and inconsistent. To fix this issue, the data retrieved is sent back to the Interface device so that the user can double-check and add missing information to the item before adding it to their internal pantry. Pantry.io then handles the rest of the logic internally by:
 * **Normalizing Units**: To make everything easier for both the application and you, quantities are normalized to either grams or millilitres.
 * **Normalizing Names**: The same process is done to the item names. A generic name is attached to each item so that items of different brands can be stored and tracked together.
+
+### 4. Local Permanent Storage
+
+Once identified, each product you scan is stored in a local catalog DB.
+* The next time you scan this same barcode, the system can just query the storage on your device instead of the internet.
+* This local reference ensures the system stays fast, private, and works even if your internet is down.
+
+### Generic Identity Linking
+
+Finally, the specific product is linked to your **Food Dictionary** (the list of a few thousand generic names). This ensures that no matter what brand of "Ketchup" you buy, your recipes always know you have it in stock.
