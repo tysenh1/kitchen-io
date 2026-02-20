@@ -13,22 +13,27 @@ CREATE TABLE IF NOT EXISTS recipes(
     tags TEXT
 );
 CREATE TABLE IF NOT EXISTS recipe_ingredients(
-    recipe_id TEXT,
+    id TEXT,
     ingredient_id TEXT,
     quantity_needed REAL,
     unit TEXT,
     FOREIGN KEY(ingredient_id) REFERENCES pantry(id),
-    FOREIGN KEY(recipe_id) REFERENCES recipes(id)
+    FOREIGN KEY(id) REFERENCES recipes(id)
 );
 CREATE TABLE IF NOT EXISTS item(
     id TEXT PRIMARY KEY,
     barcode TEXT UNIQUE NOT NULL,
     product_name TEXT,
-    generic_name TEXT,
+    generic_name_id TEXT,
     brand TEXT,
     unit_size REAL,
     unit_type TEXT,
-    image_url TEXT
+    image_url TEXT,
+    FOREIGN KEY(generic_name_id) REFERENCES generic_name(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS generic_name(
+    id TEXT PRIMARY KEY,
+    generic_name TEXT UNIQUE
 );
 CREATE TABLE IF NOT EXISTS allergens(
     id TEXT PRIMARY KEY,

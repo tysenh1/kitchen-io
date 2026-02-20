@@ -1,5 +1,5 @@
 import sqlite3 from 'sqlite3';
-import { seedPantry, seedRecipes, seedRecipeIngredients } from './seedData.ts';
+import { seedPantry, seedRecipes, seedRecipeIngredients, genericNames } from './seedData.ts';
 import path from 'path';
 import fs from 'fs';
 
@@ -20,6 +20,7 @@ const runImport = () => {
     db.run('DROP TABLE IF EXISTS item')
     db.run('DROP TABLE IF EXISTS allergens');
     db.run('DROP TABLE IF EXISTS item_allergens');
+    db.run('DROP TABLE IF EXISTS generic_name');
 
     // 2. ✅ FIXED: Execute schema FIRST (creates tables)
     db.exec(schemaSql);
@@ -39,11 +40,17 @@ const runImport = () => {
     recipeStmt.finalize();
 
     // 5. ✅ FIXED: Use seedRecipeIngredients array directly
-    const ingredientStmt = db.prepare("INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity_needed, unit) VALUES (?, ?, ?, ?)");
+    const ingredientStmt = db.prepare("INSERT INTO recipe_ingredients (id, ingredient_id, quantity_needed, unit) VALUES (?, ?, ?, ?)");
     seedRecipeIngredients.forEach(ing => {
       ingredientStmt.run(ing.recipe_id, ing.ingredient_id, ing.quantity_needed, ing.unit);
     });
     ingredientStmt.finalize();
+
+    const genericNameStmt = db.prepare("INSERT INTO generic_name (id, generic_name) VALUES (?, ?)");
+    seedGenericNames.forEach(name => {
+      genericNameStmt.run(name.id, name.generic_name);
+    })
+    genericNameStmt.finalize();
 
     console.log("✅ Database seeded successfully!");
     console.log(`📦 Pantry items: ${seedPantry.length}`);
